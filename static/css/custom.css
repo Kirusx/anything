@@ -1,0 +1,19 @@
+#box {
+    top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#log-table th {
+    /*line-height: 38px;*/
+    text-align: center
+}
+
+#log-table td {
+    line-height: 30px !important;
+    text-align: center
+}
+
+#group_add td {
+    padding: 5px;
+}

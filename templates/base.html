@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}AdminLTE 2{% endblock %}</title>
+    {% include 'head-css.html' %}
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    {% include 'header.html' %}
+    {% include 'sidebar.html' %}
+    <!-- Content Header (Page header) -->
+    <div class="content-wrapper">
+        {% block content %}
+            <section class="content-header">
+              <h1>
+                Dashboard Home
+                <small>Optional description</small>
+              </h1>
+              <ol class="breadcrumb">
+                <li>
+                    <a href="#"><i class="fa fa-dashboard"></i> Level</a>
+                </li>
+                <li class="active">Here</li>
+              </ol>
+            </section>
+            <!-- Main content -->
+
+            <section class="content container-fluid">
+
+              <!--------------------------
+                | Your Page Content Here |
+                -------------------------->
+
+            </section>
+        {% endblock %}
+    </div>
+    <!-- /.content -->
+
+    {% include 'footer.html' %}
+    {% include 'bottom-js.html' %}
+</div>
+    {% block script %}
+    {% endblock %}
+</body>
+</html>

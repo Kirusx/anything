@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}AdminLTE | 添加小组{% endblock %}
+{% block content %}
+    <section class="content-header">
+      <h1>Dashboard</h1>
+      <ol class="breadcrumb" style="top: 40px;left: 20px;">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i>菜单</a>
+        </li>
+        <li class="active">权限管理</li>
+        <li class="active">添加小组</li>
+      </ol>
+    </section>
+    <div class="col-lg-7" style="left: 300px">
+        <div class="box box-default box-solid">
+            <div class="box-header with-border">
+                <h3 class="box-title">添加小组</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+                <!-- /.box-tools -->
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="group_add" style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;"><a>组名：&nbsp;</a></td>
+                            <td><input id="group_name" class="form-control" placeholder="输入组名" type="text"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;"><a>项目：&nbsp;</a></td>
+                            <td>
+                                <select id="select_project" multiple class="selectator" data-selectator-keep-open="true">
+                                    {% for project in project_list %}
+                                        <option value={{ project.project_id }}>{{ project.project_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;"><a>成员：&nbsp;</a></td>
+                            <td>
+                                <select id="select_user" multiple class="selectator" data-selectator-keep-open="true">
+                                    {% for user in user_list %}
+                                        <option value={{ user.id }} data-left={{ user.last_name }} data-subtitle={{ user.first_name }}>{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button id="add" type="button" class="btn btn-success btn-sm">添加</button>
+                                <button id="del" type="button" class="btn btn-danger btn-sm">取消</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/jquery-1.11.0.min.js"></script>
+<script src="/static/js/fm.selectator.jquery.js"></script>
+<script>
+    $('#selectBox').selectator({
+    prefix: 'selectator_',             // CSS class prefix
+    height: 'auto',                    // auto or element
+    useDimmer: false,                  // dims the screen when option list is visible
+    useSearch: true,                   // if false, the search boxes are removed and
+                                       //   `showAllOptionsOnFocus` is forced to true
+    keepOpen: false,                   // if true, then the dropdown will not close when
+                                       //   selecting options, but stay open until losing focus
+    showAllOptionsOnFocus: false,      // shows all options if input box is empty
+    selectFirstOptionOnSearch: true,   // selects the topmost option on every search
+    searchCallback: function(value){}, // Callback function when enter is pressed and
+                                       //   no option is active in multi select box
+    labels: {
+        search: 'Search...'            // Placeholder text in search box in single select box
+    }
+});
+
+
+    $("#add").click(function () {
+        var group_data = {
+            group_name: $("#group_name").val(),
+            project_name: "papi.mama.cn",
+            project_user: "fengmingjie"
+        };
+{#        console.log(group_data);#}
+        $.ajax({
+            url: "/group_add",
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=utf-8',
+            data: JSON.stringify(group_data),
+            success: function () {
+                alert("success")
+            }
+        })
+    })
+
+
+</script>
+
+{% endblock %}
+<!--
+selectator_select_project
+selectator_chosen_items
+selectator_chosen_item
+selectator_chosen_item_title
+-->
