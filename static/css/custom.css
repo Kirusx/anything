@@ -17,3 +17,9 @@
 #group_add td {
     padding: 5px;
 }
+
+
+#error_msg {
+    color: red;
+    font-size: 12px;
+}

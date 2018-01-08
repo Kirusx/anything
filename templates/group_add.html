@@ -26,37 +26,43 @@
             <div class="box-body">
                 <table id="group_add" style="width: 100%">
                     <tbody>
-                        <tr>
-                            <td style="text-align: center;"><a>组名：&nbsp;</a></td>
-                            <td><input id="group_name" class="form-control" placeholder="输入组名" type="text"></td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center;"><a>项目：&nbsp;</a></td>
-                            <td>
-                                <select id="select_project" multiple class="selectator" data-selectator-keep-open="true">
-                                    {% for project in project_list %}
-                                        <option value={{ project.project_id }}>{{ project.project_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center;"><a>成员：&nbsp;</a></td>
-                            <td>
-                                <select id="select_user" multiple class="selectator" data-selectator-keep-open="true">
-                                    {% for user in user_list %}
-                                        <option value={{ user.id }} data-left={{ user.last_name }} data-subtitle={{ user.first_name }}>{{ user.username }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <button id="add" type="button" class="btn btn-success btn-sm">添加</button>
-                                <button id="del" type="button" class="btn btn-danger btn-sm">取消</button>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td style="text-align: center;"><a>组名：&nbsp;</a></td>
+                        <td>
+                            <input id="group_name" class="form-control" placeholder="输入组名">
+                            <span id="error_msg"></span>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;"><a>项目：&nbsp;</a></td>
+                        <td>
+                            <select id="select_project" multiple class="selectator"
+                                    data-selectator-keep-open="true">
+                                {% for project in project_list %}
+                                    <option id={{ project.project_id }}>{{ project.project_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;"><a>成员：&nbsp;</a></td>
+                        <td>
+                            <select id="select_user" multiple class="selectator" data-selectator-keep-open="true">
+                                {% for user in user_list %}
+                                    <option id={{ user.id }} data-left={{ user.last_name }}
+                                            data-subtitle={{ user.first_name }}>{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button id="add" type="button" class="btn btn-success btn-sm">添加</button>
+                            <button id="del" type="button" class="btn btn-danger btn-sm">取消</button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -89,22 +95,25 @@
 
 
     $("#add").click(function () {
-        var group_data = {
-            group_name: $("#group_name").val(),
-            project_name: "papi.mama.cn",
-            project_user: "fengmingjie"
-        };
-{#        console.log(group_data);#}
-        $.ajax({
-            url: "/group_add",
-            type: "POST",
-            dataType: "json",
-            contentType: 'application/json;charset=utf-8',
-            data: JSON.stringify(group_data),
-            success: function () {
-                alert("success")
-            }
-        })
+        if ($("#group_name").val() === "") {
+            $("#error_msg").text("小组名不能为空");
+        }else {
+            var group_data = {
+                group_name: $("#group_name").val(),
+                project_name: $('#select_project').val(),
+                project_user: $('#select_user').val()
+            };
+            $.ajax({
+                url: "/group_add",
+                type: "POST",
+                dataType: "JSON",
+                traditional: true,
+                data: group_data,
+                success: function (data) {
+                    alert(data);
+                }
+            })
+        }
     })
 
 

@@ -38,16 +38,30 @@ def home(request):
 
 def groups(request):
     group_list = ProjectGroup.objects.all()
-    return render(request, 'group.html', {'group_list': group_list})
+    project_list = ProjectLog.objects.all()
+    user_list = User.objects.all()
+    return render(request, 'group.html', {'group_list': group_list, 'project_list': project_list, 'user_list': user_list})
 
 
 def group_add(request):
     if request.method == 'POST':
         group_name = request.POST.get('group_name')
-        project_name = request.POST.get('project_name')
-        project_user = request.POST.get('project_user')
-        print(group_name, project_name, project_user)
-        return redirect('/group_add')
+        project_name = request.POST.getlist('project_name')
+        project_user = request.POST.getlist('project_user')
+        group_obj = ProjectGroup.objects.filter(group_name=group_name)
+        if not group_obj:
+            group_obj = ProjectGroup.objects.create(group_name=group_name)
+            for name in project_name:
+                group_obj.log.add(ProjectLog.objects.filter(project_name=name).first().project_id)
+            for user in project_user:
+                group_obj.user.add(User.objects.filter(username=user).first().id)
+        else:
+            for group in group_obj:
+                for name in project_name:
+                    group.log.add(ProjectLog.objects.filter(project_name=name).first().project_id)
+                for user in project_user:
+                    group.user.add(User.objects.filter(username=user).first().id)
+        return HttpResponse(json.dumps('GET'))
     else:
         project_list = ProjectLog.objects.all()
         user_list = User.objects.all()
