@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^home', views.home),
     url(r'^group$', views.groups),
     url(r'^group_add$', views.group_add),
+    url(r'^group_query$', views.group_query),
 ]

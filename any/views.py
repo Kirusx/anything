@@ -67,3 +67,23 @@ def group_add(request):
         user_list = User.objects.all()
         return render(request, 'group_add.html', {'project_list': project_list, 'user_list': user_list})
 
+
+def group_query(request):
+    project_list = []
+    user_list = []
+    data_dict = {}
+    if request.method == 'POST':
+        dept_name = request.POST.get('dept_name')
+        dept_obj = ProjectGroup.objects.filter(group_name=dept_name)
+        project_obj = ProjectLog.objects.filter(projectgroup__group_id__exact=dept_obj.first().group_id).values('project_name')
+        for project in project_obj:
+            project_list.append(project['project_name'])
+        user_obj = User.objects.filter(projectgroup__group_id__exact=dept_obj.first().group_id).values('username')
+        for user in user_obj:
+            user_list.append(user['username'])
+        data_dict['project_list'] = project_list
+        data_dict['user_list'] = user_list
+        return HttpResponse(json.dumps(data_dict))
+    else:
+        return HttpResponse(status=403)
+

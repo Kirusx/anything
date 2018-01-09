@@ -29,7 +29,7 @@
                     <tr>
                         <td style="text-align: center;"><a>组名：&nbsp;</a></td>
                         <td>
-                            <input id="group_name" class="form-control" placeholder="输入组名">
+                            <input class="form-control group_name" placeholder="输入组名">
                             <span id="error_msg"></span>
                         </td>
 
@@ -95,11 +95,11 @@
 
 
     $("#add").click(function () {
-        if ($("#group_name").val() === "") {
+        if ($(".group_name").val() === "") {
             $("#error_msg").text("小组名不能为空");
         }else {
             var group_data = {
-                group_name: $("#group_name").val(),
+                group_name: $(".group_name").val(),
                 project_name: $('#select_project').val(),
                 project_user: $('#select_user').val()
             };
