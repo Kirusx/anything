@@ -1,20 +1,15 @@
-#box {
-    /*top: 10px;*/
-    /*padding-left: 20px;*/
-    /*padding-right: 20px;*/
-    /*margin-bottom: 0;*/
-    /*padding: 0 20px;*/
+.table-striped th {
+    line-height: 38px;
+    text-align: center;
+    font-size: 13px;
 }
 
-#log-table th {
-    /*line-height: 38px;*/
-    text-align: center
-}
-
-#log-table td {
+.table-striped td{
     line-height: 30px !important;
-    text-align: center
+    text-align: center;
+    font-size: 13px;
 }
+
 
 #group_add td {
     padding: 5px;
@@ -28,4 +23,9 @@
 
 .modal-table tbody tr td {
     padding: 5px;
+}
+
+.modal-table tbody tr td a {
+    margin: 0 10px;
+    font-size: 13px;
 }

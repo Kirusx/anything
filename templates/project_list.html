@@ -18,7 +18,7 @@
         </div>
         <div class="box-body">
             <div class="dataTables_wrapper form-inline dt-bootstrap">
-                <table id="log-table" class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
                         <th>序号</th>
@@ -93,7 +93,7 @@
 {% block script %}
     <script>
         $(function () {
-            $('#log-table').DataTable({
+            $('.table-striped').DataTable({
                 'paging': true,
                 'lengthChange': true,
                 'searching': true,

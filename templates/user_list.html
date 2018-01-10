@@ -15,7 +15,7 @@
         <div class="box-header">小组列表</div>
         <div class="box-body">
             <div class="dataTables_wrapper form-inline dt-bootstrap">
-                <table id="log-table" class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
                         <th>序号</th>
@@ -64,19 +64,20 @@
                             <tbody>
                             <tr>
                                 <td style="text-align: center;"><a>用户名：&nbsp;</a></td>
-                                <td>{{ user.last_name }}{{ user.first_name }}</td>
+                                <td><a uid="{{ user.id }}">{{ user.last_name }}{{ user.first_name }}</a></td>
                             </tr>
                             <tr>
                                 <td style="text-align: center;"><a>用户角色：&nbsp;</a></td>
                                 <td>
-                                    <input type="radio" name="iCheck" checked> 系统管理员
-                                    <input type="radio" name="iCheck"> 普通用户
+                                    <a><input id="11" value="0" type="radio" name="iCheck_Role" > 普通用户</a>
+                                    <a><input id="12" value="1" type="radio" name="iCheck_Role" checked> 系统管理员</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="text-align: center;"><a>用户状态：&nbsp;</a></td>
                                 <td>
-
+                                    <a><input value="0" type="radio" name="iCheck_Stat" > 禁止登录</a>
+                                    <a><input value="1" type="radio" name="iCheck_Stat" checked> 允许登录</a>
                                 </td>
                             </tr>
                             </tbody>
@@ -97,19 +98,46 @@
     <script src="/static/js/fm.selectator.jquery.js"></script>
     <script>
         $(function () {
-            $('#log-table').DataTable({
+            $('.table-striped').DataTable({
                 'paging': true,
                 'lengthChange': true,
                 'searching': true,
                 'ordering': true,
                 'info': true,
-                'autoWidth': false
+                'autoWidth': true
             });
             $('input').iCheck({
-            checkboxClass: 'icheckbox_square-blue',
-            radioClass: 'iradio_square-blue',
-            increaseArea: '10%' /* optional */
-        });
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' /* optional */
+            });
+            $(".btn-primary").click(function () {
+                var data = {
+                    uid: $('a[uid]').attr('uid'),
+                    role: '1',
+                    stat: '1'
+                };
+                $("input[name=iCheck_Role]").each(function () {
+                    if($(this).is(':checked')) {
+                        data['role'] = $(this).val();
+                    }
+                });
+                $("input[name=iCheck_Stat]").each(function () {
+                    if($(this).is(':checked')) {
+                        data['stat'] = $(this).val();
+                    }
+                });
+                $.ajax({
+                    url: "/user/info",
+                    type: "POST",
+                    dataType: "JSON",
+                    traditional: true,
+                    data: data,
+                    success: function (data) {
+                        location.reload();
+                    }
+                })
+            });
         });
     </script>
 {% endblock %}

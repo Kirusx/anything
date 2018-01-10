@@ -131,3 +131,16 @@ def group_del(request):
             ProjectGroup.objects.filter(group_id=group_id).delete()
             response_res['result'] = 'success'
         return HttpResponse(json.dumps(response_res))
+
+
+def user_info(request):
+    response_res = {'result': None}
+    if request.method == 'POST':
+        uid = request.POST.get('uid')
+        role = request.POST.get('role')
+        stat = request.POST.get('stat')
+        user_obj = User.objects.filter(id=uid).first()
+        if uid and user_obj:
+            User.objects.filter(id=uid).update(is_superuser=role)
+            User.objects.filter(id=uid).update(is_active=stat)
+        return HttpResponse(json.dumps(response_res))
