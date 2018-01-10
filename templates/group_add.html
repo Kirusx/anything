@@ -11,65 +11,67 @@
         <li class="active">添加小组</li>
       </ol>
     </section>
-    <div class="col-lg-7" style="left: 300px">
-        <div class="box box-default box-solid">
-            <div class="box-header with-border">
-                <h3 class="box-title">添加小组</h3>
-                <div class="box-tools pull-right">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                        <i class="fa fa-minus"></i>
-                    </button>
+    <section class="content container-fluid">
+        <div class="col-lg-7" style="left: 300px">
+            <div class="box box-default box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">添加小组</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                    <!-- /.box-tools -->
                 </div>
-                <!-- /.box-tools -->
-            </div>
-            <!-- /.box-header -->
-            <div class="box-body">
-                <table id="group_add" style="width: 100%">
-                    <tbody>
-                    <tr>
-                        <td style="text-align: center;"><a>组名：&nbsp;</a></td>
-                        <td>
-                            <input class="form-control group_name" placeholder="输入组名">
-                            <span id="error_msg"></span>
-                        </td>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="group_add" style="width: 100%">
+                        <tbody>
+                        <tr>
+                            <td style="text-align: center;"><a>组名：&nbsp;</a></td>
+                            <td>
+                                <input class="form-control group_name" placeholder="输入组名">
+                                <span id="error_msg"></span>
+                            </td>
 
-                    </tr>
-                    <tr>
-                        <td style="text-align: center;"><a>项目：&nbsp;</a></td>
-                        <td>
-                            <select id="select_project" multiple class="selectator"
-                                    data-selectator-keep-open="true">
-                                {% for project in project_list %}
-                                    <option id={{ project.project_id }}>{{ project.project_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: center;"><a>成员：&nbsp;</a></td>
-                        <td>
-                            <select id="select_user" multiple class="selectator" data-selectator-keep-open="true">
-                                {% for user in user_list %}
-                                    <option id={{ user.id }} data-left={{ user.last_name }}
-                                            data-subtitle={{ user.first_name }}>{{ user.username }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button id="add" type="button" class="btn btn-success btn-sm">添加</button>
-                            <button id="del" type="button" class="btn btn-danger btn-sm">取消</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;"><a>项目：&nbsp;</a></td>
+                            <td>
+                                <select id="select_project" multiple class="selectator"
+                                        data-selectator-keep-open="true">
+                                    {% for project in project_list %}
+                                        <option id={{ project.project_id }}>{{ project.project_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;"><a>成员：&nbsp;</a></td>
+                            <td>
+                                <select id="select_user" multiple class="selectator" data-selectator-keep-open="true">
+                                    {% for user in user_list %}
+                                        <option id={{ user.id }} data-left={{ user.last_name }}
+                                                data-subtitle={{ user.first_name }}>{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button id="add" type="button" class="btn btn-success btn-sm">添加</button>
+                                <button id="del" type="button" class="btn btn-danger btn-sm">取消</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
             </div>
-            <!-- /.box-body -->
+            <!-- /.box -->
         </div>
-        <!-- /.box -->
-    </div>
+    </section>
 {% endblock %}
 
 {% block script %}
@@ -77,44 +79,45 @@
 <script src="/static/js/fm.selectator.jquery.js"></script>
 <script>
     $('#selectBox').selectator({
-    prefix: 'selectator_',             // CSS class prefix
-    height: 'auto',                    // auto or element
-    useDimmer: false,                  // dims the screen when option list is visible
-    useSearch: true,                   // if false, the search boxes are removed and
-                                       //   `showAllOptionsOnFocus` is forced to true
-    keepOpen: false,                   // if true, then the dropdown will not close when
-                                       //   selecting options, but stay open until losing focus
-    showAllOptionsOnFocus: false,      // shows all options if input box is empty
-    selectFirstOptionOnSearch: true,   // selects the topmost option on every search
-    searchCallback: function(value){}, // Callback function when enter is pressed and
-                                       //   no option is active in multi select box
-    labels: {
-        search: 'Search...'            // Placeholder text in search box in single select box
-    }
-});
+        prefix: 'selectator_',             // CSS class prefix
+        height: 'auto',                    // auto or element
+        useDimmer: false,                  // dims the screen when option list is visible
+        useSearch: true,                   // if false, the search boxes are removed and
+                                           //   `showAllOptionsOnFocus` is forced to true
+        keepOpen: false,                   // if true, then the dropdown will not close when
+                                           //   selecting options, but stay open until losing focus
+        showAllOptionsOnFocus: false,      // shows all options if input box is empty
+        selectFirstOptionOnSearch: true,   // selects the topmost option on every search
+        searchCallback: function (value) {
+        }, // Callback function when enter is pressed and
+           //   no option is active in multi select box
+        labels: {
+            search: 'Search...'            // Placeholder text in search box in single select box
+        }
+    });
 
 
     $("#add").click(function () {
         if ($(".group_name").val() === "") {
             $("#error_msg").text("小组名不能为空");
-        }else {
+        } else {
             var group_data = {
                 group_name: $(".group_name").val(),
                 project_name: $('#select_project').val(),
                 project_user: $('#select_user').val()
             };
             $.ajax({
-                url: "/group_add",
+                url: "/group/add",
                 type: "POST",
                 dataType: "JSON",
                 traditional: true,
                 data: group_data,
                 success: function (data) {
-                    alert(data);
+                    location.reload();
                 }
             })
         }
-    })
+    });
 
 
 </script>

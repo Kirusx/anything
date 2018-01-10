@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}AdminLTE | 首页{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>
+            Dashboard
+        </h1>
+        <ol class="breadcrumb" style="top: 40px;left: 20px;">
+            <li>
+                <a href="#"><i class="fa fa-dashboard"></i>菜单</a>
+            </li>
+            <li class="active">项目列表</li>
+        </ol>
+    </section>
+    <section class="content container-fluid">
+        <div class="box-header">
+            日志详细信息列表
+        </div>
+        <div class="box-body">
+            <div class="dataTables_wrapper form-inline dt-bootstrap">
+                <table id="log-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>项目</th>
+                        <th>灰度IP</th>
+                        <th>线上IP</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for list in project_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ list.project_name }}</td>
+                            <td>{{ list.project_grey_ip }}</td>
+                            <td>{{ list.project_online_ip }}</td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
+                                        data-target="#editModal">编辑
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm">删除</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="editModalLabel">
+                        {{ list.project_name }}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>灰度IP：</td>
+                                <td>
+                                    <input type="text"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>线上IP：</td>
+                                <td>
+                                    <input type="text"/>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">提交更改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(function () {
+            $('#log-table').DataTable({
+                'paging': true,
+                'lengthChange': true,
+                'searching': true,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false
+            })
+        })
+    </script>
+{% endblock %}

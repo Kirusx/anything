@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block title %}AdminLTE | 查看小组{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>Dashboard</h1>
+        <ol class="breadcrumb" style="top: 40px;left: 20px;">
+            <li>
+                <a href="#"><i class="fa fa-dashboard"></i>菜单</a>
+            </li>
+            <li class="active">权限管理</li>
+            <li class="active">查看小组</li>
+        </ol>
+    </section>
+    <section class="content container-fluid">
+        <div class="box-header">小组列表</div>
+        <div class="box-body">
+            <div class="dataTables_wrapper form-inline dt-bootstrap">
+                <table id="log-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>小组名</th>
+                        <th>成员数</th>
+                        <th>项目数</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for list in group_list %}
+                        <tr gid={{ list.group_id }}>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="group_name">{{ list.group_name }}</td>
+                            <td>{{ list.user.count }}</td>
+                            <td>{{ list.log.count }}</td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-sm edit-btn" data-toggle="modal"
+                                        data-target="#editModal">编辑
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm del-btn">删除</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="editModalLabel"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <table id="group_add" style="width: 100%">
+                            <tbody>
+                            <tr>
+                                <td style="text-align: center;"><a>组名：&nbsp;</a></td>
+                                <td><input class="form-control modify-group-name" placeholder="输入组名"></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;"><a>项目：&nbsp;</a></td>
+                                <td>
+                                    <select id="select_project" multiple class="selectator projects"
+                                            data-selectator-keep-open="true">
+                                        {% for project in project_list %}
+                                            <option id={{ project.project_id }}>{{ project.project_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;"><a>成员：&nbsp;</a></td>
+                                <td>
+                                    <select id="select_user" multiple class="selectator members"
+                                            data-selectator-keep-open="true">
+                                        {% for user in user_list %}
+                                            <option id={{ user.id }} data-left={{ user.last_name }}
+                                                    data-subtitle={{ user.first_name }}>{{ user.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary">提交更改</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/fm.selectator.jquery.js"></script>
+    <script>
+        $(function () {
+            $('#log-table').DataTable({
+                'paging': true,
+                'lengthChange': true,
+                'searching': true,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false
+            });
+
+            $('#selectBox').selectator({
+                prefix: 'selectator_',             // CSS class prefix
+                height: 'auto',                    // auto or element
+                useDimmer: false,                  // dims the screen when option list is visible
+                useSearch: true,                   // if false, the search boxes are removed and
+                                                   //   `showAllOptionsOnFocus` is forced to true
+                keepOpen: false,                   // if true, then the dropdown will not close when
+                                                   //   selecting options, but stay open until losing focus
+                showAllOptionsOnFocus: false,      // shows all options if input box is empty
+                selectFirstOptionOnSearch: true,   // selects the topmost option on every search
+                searchCallback: function (value) {
+                }, // Callback function when enter is pressed and
+                   //   no option is active in multi select box
+                labels: {
+                    search: 'Search...'            // Placeholder text in search box in single select box
+                }
+            });
+        });
+
+        $(".edit-btn").click(function () {
+            var title_name = $(this).parent().siblings('.group_name').text();
+            $(".modal-title").text("编辑 - " + title_name);
+            $(".modify-group-name").val(title_name);
+            var data = {
+                dept_name: title_name
+            };
+            $.ajax({
+                url: "/group/query",
+                type: "POST",
+                dataType: "JSON",
+                traditional: true,
+                data: data,
+                success: function (data) {
+                    $('.modify-group-name').parent().attr({'gid': data['dept_id']});
+                    $('.projects').val(data['project_list']).trigger('change');
+                    $('.members').val(data['user_list']).trigger('change');
+                }
+            })
+        });
+
+        $(".del-btn").click(function () {
+            var group_id = $(this).parent().parent().attr('gid');
+            console.log(group_id);
+            var data = {
+                group_id: group_id
+            };
+            $.ajax({
+                url: "/group/del",
+                type: "POST",
+                dataType: "JSON",
+                traditional: true,
+                data: data,
+                success: function (data) {
+                    location.reload();
+                }
+            })
+        });
+
+        $(".btn-primary").click(function () {
+            var modify_data = {
+                group_id: $('.modify-group-name').parent().attr('gid'),
+                new_group_name: $('.modify-group-name').val(),
+                new_project_name: $('.projects').val(),
+                new_project_user: $('.members').val()
+            };
+            $.ajax({
+                url: "/group/modify",
+                type: "POST",
+                dataType: "JSON",
+                traditional: true,
+                data: modify_data,
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+        });
+
+    </script>
+{% endblock %}

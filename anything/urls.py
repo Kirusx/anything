@@ -19,11 +19,14 @@ from any import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', views.index),
     url(r'^login', views.user_login),
     url(r'^account/logout', views.user_logout),
-    url(r'^index', views.index),
-    url(r'^home', views.home),
-    url(r'^group$', views.groups),
-    url(r'^group_add$', views.group_add),
-    url(r'^group_query$', views.group_query),
+    url(r'^user/list', views.users_list),
+    url(r'^project/list', views.project_list),
+    url(r'^group/list$', views.groups_list),
+    url(r'^group/add$', views.group_add),
+    url(r'^group/query$', views.group_query),
+    url(r'^group/modify$', views.group_modify),
+    url(r'^group/del$', views.group_del),
 ]
