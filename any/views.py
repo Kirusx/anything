@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django.shortcuts import render, redirect, HttpResponse, render_to_response
-from django.contrib import auth, sessions
+from django.contrib import auth
 from stronghold.decorators import public
 from any.models import ProjectLog, ProjectGroup
 from django.contrib.auth.models import User
@@ -28,7 +28,7 @@ def user_logout(request):
 
 
 def index(request):
-    return render(request, 'index.html', {'user': request.user})
+    return render(request, 'index.html')
 
 
 def users_list(request):
