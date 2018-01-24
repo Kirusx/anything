@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}AdminLTE | Deployment{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>Dashboard</h1>
+        <ol class="breadcrumb" style="top: 40px;left: 20px;">
+            <li>
+                <a href="#"><i class="fa fa-dashboard"></i>菜单</a>
+            </li>
+            <li class="active">集群管理</li>
+            <li class="active">Deployment</li>
+        </ol>
+    </section>
+    <section class="content container-fluid">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Deployment</h3>
+                <div class="box-tools">
+                    <select class="form-control namespace-sel" style="width: 148px;">
+                        {% for namespace in namespace %}
+                            <option>{{ namespace.metadata.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Namespace</th>
+                            <th>Status</th>
+                            <th>Image</th>
+                            <th>Operations</th>
+                        </tr>
+                        {% for deploy in deployment %}
+                        <tr>
+                            <td>{{ deploy.metadata.name }}</td>
+                            <td>{{ deploy.metadata.namespace }}</td>
+                            <td>{{ deploy.status.ready_replicas }}/{{ deploy.status.replicas }}/{{ deploy.status.updated_replicas }}/{{ deploy.status.available_replicas }}</td>
+                            <td>{{ deploy.spec.template.spec.containers.0.image }}</td>
+                            <td>
+                                <!--
+                                <div class="ui right pointing dropdown link item">
+                                    <input name="Actions" type="hidden">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">Actions</div>
+                                    <div class="menu">
+                                        <div class="item"><i class="fa fa-refresh"></i><a>Update Version</a></div>
+                                        <div class="item"><i class="fa fa-arrow-up"></i><a>Scale Up</a></div>
+                                        <div class="item"><i class="fa fa-arrow-down"></i><a>Scale Down</a></div>
+                                        <div class="divider"></div>
+                                        <div class="item"><i class="fa fa-times"></i><a>Delete</a></div>
+                                    </div>
+                                </div>
+                                -->
+                                <div class="ui dropdown">
+                                    <div class="ui left pointing dropdown link item">
+                                        <i class="dropdown icon"></i>
+                                        Actions
+                                        <div class="menu">
+                                            <div class="item"><i class="fa fa-refresh"></i>&nbsp;&nbsp;<a>Update Version</a></div>
+                                            <div class="item"><i class="fa fa-arrow-up"></i>&nbsp;&nbsp;<a>Scale UP</a></div>
+                                            <div class="item"><i class="fa fa-arrow-down"></i>&nbsp;&nbsp;<a>Scale DOWN</a></div>
+                                            <div class="divider"></div>
+                                            <div class="item"><i class="fa fa-times"></i>&nbsp;&nbsp;<a>Delete</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/semantic.min.js"></script>
+    <script>
+        $('.ui.dropdown').dropdown();
+    </script>
+{% endblock %}

@@ -12,60 +12,293 @@
     </section>
     <section class="content container-fluid">
         <div class="row">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-aqua"><i class="fa fa-cube"></i></span>
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>{{ request_dict.node_counts }}</h3>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">仓库镜像</span>
-                        <span class="info-box-number">1,410</span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
+              <p>Nodes</p>
             </div>
-            <!-- /.col -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-blue"><i class="fa fa-cloud"></i></span>
+            <div class="icon">
+              <i class="ion ion-android-cloud-outline"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>{{ request_dict.deployment_counts }}</h3>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">运行容器</span>
-                        <span class="info-box-number">410</span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
+              <p>Deployments</p>
             </div>
-            <!-- /.col -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-green"><i class="fa fa-heart"></i></span>
+            <div class="icon">
+              <i class="ion ion-cube"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3>{{ request_dict.pod_counts }}</h3>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">Uploads</span>
-                        <span class="info-box-number">13,648</span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
+              <p>Pods</p>
             </div>
-            <!-- /.col -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-red"><i class="fa fa-plus-square"></i></span>
+            <div class="icon">
+              <i class="ion ion-social-buffer-outline"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3>{{ request_dict.configmap_counts }}</h3>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">Likes</span>
-                        <span class="info-box-number">93,139</span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
+              <p>ConfigMap</p>
             </div>
-            <!-- /.col -->
+            <div class="icon">
+              <i class="ion ion-document-text"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">集群节点</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <th>节点</th>
+                        <th>IP地址</th>
+                        <th>状态</th>
+                        <th>Reason</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for node in request_dict.node_info %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="node-name">{{ node.metadata.name }}</td>
+                            <td class="node-ip">{{ node.status.addresses.0.address }}</td>
+                            <td><span class="cluster-stat label">{{ node.status.conditions.3.type }}</span></td>
+                            <td>{{ node.status.conditions.3.message }}</td>
+                            <td>{{ node.metadata.creation_timestamp }}</td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-xs btn-node-detail" data-toggle="modal"
+                                        data-target="#nodeModal">详细信息
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="box">
+            <div class="box-header" style="position: relative">
+                <h3 class="box-title">运行容器</h3>
+                <div class="box-tools">
+                    <select class="form-control namespace-sel" style="width: 148px;">
+                        {% for namespace in request_dict.namespace_info %}
+                            <option>{{ namespace.metadata.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding dataTables_wrapper form-inline dt-bootstrap">
+                <table id="container-table" class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>容器IP</th>
+                        <th>运行节点</th>
+                        <th>容器镜像</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for pod in request_dict.pods_info %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="pod-name">{{ pod.metadata.name }}</td>
+                            <td class="pod-ip">{{ pod.status.pod_ip }}</td>
+                            <td>{{ pod.spec.node_name }}</td>
+                            <td>{{ pod.spec.containers.0.image }}</td>
+                            <td><span class="cluster-stat label">{{ pod.status.phase }}</span></td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-xs btn-detail" data-toggle="modal"
+                                        data-target="#podModal">详细信息
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+        <div class="modal fade" id="nodeModal" tabindex="-1" role="dialog" aria-labelledby="nodeModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-node-title" id="nodeModalLabel"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="box-body">
+                            <strong><i class="fa fa-book margin-r-5"></i>节点信息</strong>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td><p class="text-muted">主机名：</p></td>
+                                        <td><p id="name-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">主机IP：</p></td>
+                                        <td><p id="ip-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">主机CPU：</p></td>
+                                        <td><p id="cpu-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">主机内存：</p></td>
+                                        <td><p id="mem-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">操作系统：</p></td>
+                                        <td><p id="os-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">Kubelet版本：</p></td>
+                                        <td><p id="kubelet-val" class="text-muted"></p></td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="text-muted">KubeProxy版本：</p></td>
+                                        <td><p id="kubeproxy-val" class="text-muted"></p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+        <div class="modal fade" id="podModal" tabindex="-1" role="dialog" aria-labelledby="podModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="podModalLabel"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="box-body">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
         </div>
     </section>
 {% endblock %}
 {% block script %}
+    <script>
+    $(function () {
+        $('.table-striped').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': false
+        });
+
+        $('.cluster-stat').each(function () {
+            var status = $(this).text();
+            if (status === 'Ready' || status === 'Running')  {
+                $(this).addClass('label-success');
+            } else {
+                $(this).addClass('label-danger');
+            }
+        });
+
+        $('.btn-node-detail').click(function () {
+            var modal_title = $(this).parent().siblings('.node-name').text();
+            $('.modal-node-title').text(modal_title);
+            var query_data = {
+                node_name: modal_title
+            };
+            $.ajax({
+                url: '/node/info',
+                type: "POST",
+                dataType: "JSON",
+                traditional: true,
+                data: query_data,
+                success: function (data) {
+                    // data = JSON.stringify(data);
+                    $('#cpu-val').text(data['cpu'] + "核");
+                    $('#mem-val').text(data['memory']);
+                    $('#ip-val').text(data['ip']);
+                    $('#name-val').text(data['name']);
+                    $('#os-val').text(data['os'] + "  -  " + data['kernel_version']);
+                    $('#kubelet-val').text(data['kubelet_version']);
+                    $('#kubeproxy-val').text(data['kube_proxy_version']);
+                }
+            });
+        });
+
+
+        $('.namespace-sel').change(function () {
+            $.ajax({
+                url: '/',
+                type: "POST",
+                traditional: true,
+                dataType: 'JSON',
+                data: {'namespace': $('.namespace-sel option:selected').text()},
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        });
+
+        /*
+        $('.namespace-sel').change(function () {
+            console.log($('.namespace-sel option:selected').text());
+        });
+        */
+    })
+    </script>
 {% endblock %}

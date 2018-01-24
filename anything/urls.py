@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^group/modify$', views.group_modify),
     url(r'^group/del$', views.group_del),
     url(r'^user/info$', views.user_info),
+    url(r'^node/info$', views.node_info),
+    url(r'^deployment$', views.deployment),
 ]

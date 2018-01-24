@@ -29,3 +29,15 @@
     margin: 0 10px;
     font-size: 13px;
 }
+
+div.dataTables_length,div.dataTables_info {
+    margin-left: 10px !important;
+}
+
+div.dataTables_filter,div#container-table_paginate {
+    margin-right: 10px !important;
+}
+
+table#container-table td {
+    font-size: 14px !important;
+}
