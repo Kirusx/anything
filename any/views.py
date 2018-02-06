@@ -1,12 +1,22 @@
 # -*- coding:utf-8 -*-
+from builtins import classmethod
+
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import auth
 from stronghold.decorators import public
 from any.models import ProjectLog, ProjectGroup
 from django.contrib.auth.models import User
+from django.template import RequestContext, loader
 # Create your views here.
 import json
+import yaml
+import os.path
 from kubernetes import client
+from kubernetes.client.rest import ApiException
+
+beta_api = client.AppsV1beta1Api()
+v1api_ins = client.CoreV1Api()
+extensions_v1beta1 = client.ExtensionsV1beta1Api()
 
 
 @public
@@ -29,15 +39,8 @@ def user_logout(request):
     return redirect('/login')
 
 
-# def obj2dict(obj):
-#     d = {}
-#     d['__class__'] = obj.__class__.__name__
-#     d['__module__'] = obj.__module__
-#     d.update(obj.__dict__)
-#     return d
 def nodeinfo():
-    node_ins = client.CoreV1Api()
-    node_info = node_ins.list_node().items
+    node_info = v1api_ins.list_node().items
     node_info_dict = {}
     for item in node_info:
         node_info_dict[item.metadata.name] = {}
@@ -49,8 +52,7 @@ def nodeinfo():
 
 
 def podinfo(namespace):
-    pod_ins = client.CoreV1Api()
-    pods_info = pod_ins.list_namespaced_pod(namespace).items
+    pods_info = v1api_ins.list_namespaced_pod(namespace).items
     pods_info_dict = {}
     for item in pods_info:
         pods_info_dict[item.metadata.name] = {}
@@ -62,8 +64,7 @@ def podinfo(namespace):
 
 
 def namespaceinfo():
-    namespace_ins = client.CoreV1Api()
-    namespace_info = namespace_ins.list_namespace().items
+    namespace_info = v1api_ins.list_namespace().items
     namespace_info_list = []
     for item in namespace_info:
         namespace_info_list.append(item.metadata.name)
@@ -71,18 +72,13 @@ def namespaceinfo():
 
 
 def indexinfo(namespace):
-    beta_api = client.AppsV1beta1Api()
     deployment = beta_api.list_namespaced_deployment(namespace)
 
-    v1api_ins = client.CoreV1Api()
     node_info = v1api_ins.list_node()
     pods_info = v1api_ins.list_namespaced_pod(namespace)
     configmap = v1api_ins.list_namespaced_config_map(namespace)
     namespace_info = v1api_ins.list_namespace()
 
-    # node_res = nodeinfo()
-    # pods_res = podinfo(namespace)
-    # namespaceinfo()
     request_dict = {
         'node_counts': len(node_info.items),
         'deployment_counts': len(deployment.items),
@@ -99,17 +95,6 @@ def index(request):
     if request.method == "POST":
         namespace = request.POST.get('namespace', default='default')
         ret_dict = indexinfo(namespace)
-        # node_dict = {}
-        # namespace_dict = {}
-        # pods_dict = {}
-        # for item in ret_dict['namespace_info']:
-        #     namespace_dict[item.metadata.name] = item
-        # for item in ret_dict['pods_info']:
-        #     pods_dict[item.metadata.name] = item
-        # ret_dict['node_info'] = node_dict
-        # ret_dict['namespace_info'] = namespace_dict
-        # ret_dict['pods_info'] = pods_dict
-        print(ret_dict)
         return HttpResponse(ret_dict)
     else:
         ret_dict = indexinfo('default')
@@ -233,8 +218,7 @@ def user_info(request):
 
 def node_info(request):
     node_name = request.POST.get('node_name')
-    v1api = client.CoreV1Api()
-    node_status = v1api.read_node_status(node_name)
+    node_status = v1api_ins.read_node_status(node_name)
     status_dict = {
         'name': node_status.metadata.name,
         'uid': node_status.metadata.uid,
@@ -251,10 +235,119 @@ def node_info(request):
 
 
 def deployment(request):
-    beta_api = client.AppsV1beta1Api()
-    deployment = beta_api.list_namespaced_deployment('default')
+    if request.method == 'POST':
+        namespace = request.POST.get('namespace')
+        deployment = beta_api.list_namespaced_deployment(namespace)
+        if len(deployment.items) == 0:
+            ret_data = None
+        else:
+            ret_data = {}
+            for index, item in enumerate(deployment.items):
+                ret_data[item.metadata.name] = {}
+                ret_data[item.metadata.name]['id'] = index
+                ret_data[item.metadata.name]['namespace'] = item.metadata.namespace
+                ret_data[item.metadata.name]['ready_replicas'] = item.status.ready_replicas
+                ret_data[item.metadata.name]['replicas'] = item.status.replicas
+                ret_data[item.metadata.name]['updated_replicas'] = item.status.updated_replicas
+                ret_data[item.metadata.name]['available_replicas'] = item.status.available_replicas
+                ret_data[item.metadata.name]['image'] = item.spec.template.spec.containers[0].image
+        return HttpResponse(json.dumps(ret_data))
+    else:
+        deployment = beta_api.list_namespaced_deployment('default')
+        namespace = v1api_ins.list_namespace()
+        return render(request, 'deployment.html', {'deployment': deployment.items, 'namespace': namespace.items})
 
-    v1api_ins = client.CoreV1Api()
-    namespace = v1api_ins.list_namespace()
-    return render(request, 'deployment.html', {'deployment': deployment.items, 'namespace': namespace.items})
 
+def services(request):
+    if request.method == 'POST':
+        return HttpResponse('get')
+    else:
+        namespace = v1api_ins.list_namespace()
+        service = v1api_ins.list_namespaced_service('default')
+        return render(request, 'services.html', {'services': service.items, 'namespace': namespace.items})
+
+
+def datatable(request):
+    if request.method == 'POST':
+        namespace = request.POST.get('namespace')
+        deployment = beta_api.list_namespaced_deployment(namespace)
+        if len(deployment.items) == 0:
+            ret_data = None
+        else:
+            ret_data = {}
+            for index, item in enumerate(deployment.items):
+                ret_data[item.metadata.name] = {}
+                ret_data[item.metadata.name]['id'] = index
+                ret_data[item.metadata.name]['namespace'] = item.metadata.namespace
+                ret_data[item.metadata.name]['ready_replicas'] = item.status.ready_replicas
+                ret_data[item.metadata.name]['replicas'] = item.status.replicas
+                ret_data[item.metadata.name]['updated_replicas'] = item.status.updated_replicas
+                ret_data[item.metadata.name]['available_replicas'] = item.status.available_replicas
+                ret_data[item.metadata.name]['image'] = item.spec.template.spec.containers[0].image
+        return HttpResponse(json.dumps(ret_data))
+    else:
+        return HttpResponse(None)
+
+
+def deployment_opt(request, action_name):
+    action_dict = {
+        'update': extensions_v1beta1.patch_namespaced_deployment,
+        'scaleup': extensions_v1beta1.patch_namespaced_deployment_scale,
+        'scaledown': extensions_v1beta1.patch_namespaced_deployment_scale,
+        'delete': extensions_v1beta1.delete_namespaced_deployment
+    }
+    if request.method == 'POST':
+        action = request.POST.get('action').lower()
+        name = request.POST.get('deploymentname')
+        namespace = request.POST.get('deploymentnamespace')
+        image = request.POST.get('deploymentimage')
+        if action in action_dict:
+            deployment_ins = extensions_v1beta1.read_namespaced_deployment(name, namespace)
+            if action == 'update':
+                deployment_ins.spec.template.spec.containers[0].image = image
+                action_dict[action](name=name, namespace=namespace, body=deployment_ins)
+            elif action == 'delete':
+                delete_opt = client.V1DeleteOptions(propagation_policy='Foreground', grace_period_seconds=3)
+                extensions_v1beta1.delete_namespaced_deployment(name, namespace, body=delete_opt)
+            elif action == 'scaleup':
+                deployment_ins.spec.replicas += 1
+                extensions_v1beta1.patch_namespaced_deployment_scale(name, namespace, body=deployment_ins)
+            elif action == 'scaledown':
+                deployment_ins.spec.replicas -= 1
+                extensions_v1beta1.patch_namespaced_deployment_scale(name, namespace, body=deployment_ins)
+            return HttpResponse(json.dumps({'success': action + ' ' + name + ' success'}))
+        else:
+            return HttpResponse(json.dumps({'error': action + ' does not support'}))
+    else:
+        return HttpResponse(status=404)
+
+
+def create_deployment(request):
+    resouce_dict = {
+        'Deployment': extensions_v1beta1.create_namespaced_deployment,
+        'Service': v1api_ins.create_namespaced_service
+    }
+    if request.method == 'POST':
+        file = request.FILES.get('deployment-file')
+        from anything.settings import UPLOAD_DIR
+        save_file = os.path.join(UPLOAD_DIR, file.name)
+        with open(save_file, 'wb+') as dest_file:
+            for chunk in file.chunks():
+                dest_file.write(chunk)
+        with open(save_file) as deployment_file:
+            dep = yaml.load(deployment_file)
+        if dep['kind'] in resouce_dict:
+            if 'namespace' in dep['metadata'].keys():
+                namespace = dep['metadata']['namespace']
+            else:
+                namespace = 'default'
+            try:
+                resouce_dict[dep['kind']](body=dep, namespace=namespace)
+                return redirect('/create/deployment')
+            except ApiException as e:
+                reason = json.loads(e.body)
+                return render(request, 'upload.html', {'msg': reason['message']})
+        else:
+            return render(request, 'upload.html', {'msg': "%s does not support." % dep['kind']})
+    else:
+        return render(request, 'upload.html')

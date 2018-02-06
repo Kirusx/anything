@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}AdminLTE | Services{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>Dashboard</h1>
+        <ol class="breadcrumb" style="top: 40px;left: 20px;">
+            <li>
+                <a href="#"><i class="fa fa-dashboard"></i>菜单</a>
+            </li>
+            <li class="active">集群管理</li>
+            <li class="active">Services</li>
+        </ol>
+    </section>
+    <section class="content container-fluid">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Services</h3>
+                <div class="box-tools">
+                    <select class="form-control namespace-sel" style="width: 148px;">
+                        {% for namespace in namespace %}
+                            <option>{{ namespace.metadata.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover svc-table">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Services</th>
+                            <th>Tag</th>
+                            <th>ClusterIP</th>
+                            <th>Ports</th>
+                            <th>Operations</th>
+                        </tr>
+                        {% for svc in services %}
+                        <tr>
+                            <td>{{ svc.metadata.name }}</td>
+                            <td>{{ svc.metadata.namespace }}</td>
+                            <td><span class="label label-success">{{ svc.metadata.labels.name }}</span></td>
+                            <td>{{ svc.spec.cluster_ip }}</td>
+                            <td>
+                                {% for port in svc.spec.ports %}
+                                    {{ svc.metadata.name }}:{{ port.port }} {{ port.name }}
+                                    <br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <div class="ui dropdown">
+                                    <div class="ui right pointing dropdown link item">
+                                        <i class="dropdown icon"></i>
+                                        Actions
+                                        <div class="menu">
+                                            <div class="item"><i class="ion-document-text"></i><a>View Detail</a></div>
+                                            <div class="divider"></div>
+                                            <div class="item"><i class="ion-trash-a"></i><a>Delete</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/semantic.min.js"></script>
+    <script>
+        $('.ui.dropdown').dropdown();
+    </script>
+{% endblock %}

@@ -17,6 +17,7 @@ from anything.config import getconfig
 from kubernetes import config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
 config_dict = getconfig()
 config.load_kube_config(config_file='anything/kubernetes.conf')
 # Quick-start development settings - unsuitable for production

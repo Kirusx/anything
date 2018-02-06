@@ -38,7 +38,7 @@
             <div class="icon">
               <i class="ion ion-cube"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="/list/deployment" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
         <!-- ./col -->
@@ -243,17 +243,27 @@
             'searching': true,
             'ordering': true,
             'info': true,
-            'autoWidth': false
-        });
-
-        $('.cluster-stat').each(function () {
-            var status = $(this).text();
-            if (status === 'Ready' || status === 'Running')  {
-                $(this).addClass('label-success');
-            } else {
-                $(this).addClass('label-danger');
+            'autoWidth': false,
+            'fnCreatedRow': function () {
+                $('.cluster-stat').each(function () {
+                    var status = $(this).text();
+                    if (status === 'Ready' || status === 'Running') {
+                        $(this).addClass('label-success');
+                    } else {
+                        $(this).addClass('label-danger');
+                    }
+                });
             }
         });
+
+{#        $('.cluster-stat').each(function () {#}
+{#            var status = $(this).text();#}
+{#            if (status === 'Ready' || status === 'Running')  {#}
+{#                $(this).addClass('label-success');#}
+{#            } else {#}
+{#                $(this).addClass('label-danger');#}
+{#            }#}
+{#        });#}
 
         $('.btn-node-detail').click(function () {
             var modal_title = $(this).parent().siblings('.node-name').text();

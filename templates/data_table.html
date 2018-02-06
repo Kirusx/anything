@@ -1,0 +1,34 @@
+<table class="table table-hover deploy-table">
+    <tbody>
+    <tr class="title">
+        <th>Name</th>
+        <th>Namespace</th>
+        <th>Status</th>
+        <th>Image</th>
+        <th>Operations</th>
+    </tr>
+    {% for deploy in data %}
+        <tr class="deployData">
+            <td class="deployName">{{ deploy.metadata.name }}</td>
+            <td class="deployNamespace">{{ deploy.metadata.namespace }}</td>
+            <td class="deployStatus">{{ deploy.status.ready_replicas }}/{{ deploy.status.replicas }}/{{ deploy.status.updated_replicas }}/{{ deploy.status.available_replicas }}</td>
+            <td class="deployImage">{{ deploy.spec.template.spec.containers.0.image }}</td>
+            <td>
+                <div class="ui dropdown">
+                    <div class="ui right pointing dropdown link item">
+                        <i class="dropdown icon"></i>
+                        Actions
+                        <div class="menu">
+                            <div class="item"><i class="ion-loop"></i><a>Update Version</a></div>
+                            <div class="item"><i class="ion-plus-round"></i><a>Scale Up</a></div>
+                            <div class="item"><i class="ion-minus-round"></i><a>Scale Down</a></div>
+                            <div class="divider"></div>
+                            <div class="item"><i class="ion-trash-a"></i><a>Delete</a></div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

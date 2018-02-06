@@ -31,5 +31,12 @@ urlpatterns = [
     url(r'^group/del$', views.group_del),
     url(r'^user/info$', views.user_info),
     url(r'^node/info$', views.node_info),
-    url(r'^deployment$', views.deployment),
+    url(r'^list/deployment$', views.deployment),
+    url(r'^list/services$', views.services),
+    url(r'^data_table$', views.datatable),
+    # url(r'^scale/deployment$', views.scaledeployment),
+    # url(r'^update/deployment$', views.updatedeployment),
+    # url(r'^delete/deployment$', views.deletedeployment),
+    url(r'^create/deployment$', views.create_deployment),
+    url(r'^(?P<action_name>\w+)/deployment$', views.deployment_opt)
 ]

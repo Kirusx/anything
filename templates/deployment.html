@@ -25,9 +25,9 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive no-padding">
-                <table class="table table-hover">
+                <table class="table table-hover deploy-table">
                     <tbody>
-                        <tr>
+                        <tr class="title">
                             <th>Name</th>
                             <th>Namespace</th>
                             <th>Status</th>
@@ -35,36 +35,22 @@
                             <th>Operations</th>
                         </tr>
                         {% for deploy in deployment %}
-                        <tr>
-                            <td>{{ deploy.metadata.name }}</td>
-                            <td>{{ deploy.metadata.namespace }}</td>
-                            <td>{{ deploy.status.ready_replicas }}/{{ deploy.status.replicas }}/{{ deploy.status.updated_replicas }}/{{ deploy.status.available_replicas }}</td>
-                            <td>{{ deploy.spec.template.spec.containers.0.image }}</td>
-                            <td>
-                                <!--
-                                <div class="ui right pointing dropdown link item">
-                                    <input name="Actions" type="hidden">
-                                    <i class="dropdown icon"></i>
-                                    <div class="default text">Actions</div>
-                                    <div class="menu">
-                                        <div class="item"><i class="fa fa-refresh"></i><a>Update Version</a></div>
-                                        <div class="item"><i class="fa fa-arrow-up"></i><a>Scale Up</a></div>
-                                        <div class="item"><i class="fa fa-arrow-down"></i><a>Scale Down</a></div>
-                                        <div class="divider"></div>
-                                        <div class="item"><i class="fa fa-times"></i><a>Delete</a></div>
-                                    </div>
-                                </div>
-                                -->
+                        <tr class="deployData">
+                            <td class="deployName">{{ deploy.metadata.name }}</td>
+                            <td class="deployNamespace">{{ deploy.metadata.namespace }}</td>
+                            <td class="deployStatus">{{ deploy.status.ready_replicas }}/{{ deploy.status.replicas }}/{{ deploy.status.updated_replicas }}/{{ deploy.status.available_replicas }}</td>
+                            <td class="deployImage">{{ deploy.spec.template.spec.containers.0.image }}</td>
+                            <td class="deployopt">
                                 <div class="ui dropdown">
-                                    <div class="ui left pointing dropdown link item">
+                                    <div class="ui right pointing dropdown link item">
                                         <i class="dropdown icon"></i>
                                         Actions
                                         <div class="menu">
-                                            <div class="item"><i class="fa fa-refresh"></i>&nbsp;&nbsp;<a>Update Version</a></div>
-                                            <div class="item"><i class="fa fa-arrow-up"></i>&nbsp;&nbsp;<a>Scale UP</a></div>
-                                            <div class="item"><i class="fa fa-arrow-down"></i>&nbsp;&nbsp;<a>Scale DOWN</a></div>
+                                            <div class="item"><i class="ion-loop"></i><a>UpdateVersion</a></div>
+                                            <div class="item"><i class="ion-plus-round"></i><a>ScaleUp</a></div>
+                                            <div class="item"><i class="ion-minus-round"></i><a>ScaleDown</a></div>
                                             <div class="divider"></div>
-                                            <div class="item"><i class="fa fa-times"></i>&nbsp;&nbsp;<a>Delete</a></div>
+                                            <div class="item"><i class="ion-trash-a"></i><a>Delete</a></div>
                                         </div>
                                     </div>
                                 </div>
@@ -76,12 +62,140 @@
             </div>
             <!-- /.box-body -->
         </div>
+        <div class="my-modal" id="deploy-modal">
+            <div class="my-modal-dialog">
+                <div class="my-modal-header">
+                    <span aria-hidden="true" class="close">x</span>
+                    <h4 class="my-modal-title"></h4>
+                </div>
+                <div class="my-modal-content">
+                    <a></a>
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control container-img" value="">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-info btn-flat deploy-update">Update</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 {% endblock %}
 
 {% block script %}
     <script src="/static/js/semantic.min.js"></script>
     <script>
-        $('.ui.dropdown').dropdown();
+        function action_dropdown() {
+            $('.ui.dropdown').dropdown({
+                on: 'hover',
+                direction: 'downward',
+                onChange: function (value, text, $selectedItem) {
+                    var action_dict = ["ScaleUp", "ScaleDown", "Delete"];
+                    var action = $selectedItem.text();
+                    var deployment_name = $($selectedItem).parents('td').siblings('.deployName').text();
+                    var deployment_namespace = $($selectedItem).parents('td').siblings('.deployNamespace').text();
+                    var deployment_image = $($selectedItem).parents('td').siblings('.deployImage').text();
+                    if (action === 'UpdateVersion') {
+                        var url = '/update/deployment';
+                        $('.my-modal-title').text("Update Deployment " + deployment_name);
+                        $('.my-modal-content a').text("Image of " + deployment_name);
+                        $('.container-img').val(deployment_image);
+                        $('#deploy-modal').fadeIn(600, function () {
+                            $('.container-img').focus();
+                        });
+                        $('.deploy-update').click(function () {
+                            if ($('.container-img').val() !== deployment_image) {
+                                var new_img = $('.container-img').val();
+                                $.ajax({
+                                    url: url,
+                                    type: 'POST',
+                                    data: {
+                                        'action': 'update',
+                                        'deploymentname': deployment_name,
+                                        'deploymentnamespace': deployment_namespace,
+                                        'deploymentimage': new_img
+                                    },
+                                    success: function (data) {
+                                        $('#deploy-modal').fadeOut(600);
+                                        alert(data);
+                                        location.reload();
+                                    }
+                                })
+                            } else {
+                                $('#deploy-modal').fadeOut(600);
+                            }
+                        });
+                    }else if ($.inArray(action, action_dict) >= 0){
+                        $.ajax({
+                            url: '/' + action + '/deployment',
+                            type: 'POST',
+                            data: {
+                                'action': action,
+                                'deploymentname': deployment_name,
+                                'deploymentnamespace': deployment_namespace,
+                                'deploymentimage': deployment_image
+                            },
+                            success: function (data) {
+                                alert(data);
+                                location.reload();
+                            }
+                        })
+                    }
+                }
+            });
+        }
+
+        $(function () {
+            $('#deploy-modal').click(function (e) {
+                var click_val = $(e.target).attr('class');
+                if ('my-modal' === click_val || 'close' === click_val) {
+                    $('.my-modal').hide();
+                }
+            });
+
+            action_dropdown();
+
+            $('.namespace-sel').change(function () {
+                $.ajax({
+                    url: '/data_table',
+                    type: "POST",
+                    data: {'namespace': $('.namespace-sel option:selected').text()},
+                    success: function (data) {
+                        var deployment_data = JSON.parse(data);
+                        $(".deploy-table tbody tr").remove(".deployData");
+                        for (var deployment in deployment_data) {
+                            var row_content = "<tr class=deployData id='did_" + deployment_data[deployment]['id'] + "'></tr>";
+                            var td_deployname = "<td class=\"deployName\">"+ deployment + "</td>";
+                            var td_deploynamespace = "<td class=\"deployNamespace\">" + deployment_data[deployment]['namespace'] + "</td>";
+                            var td_deploystatus = "<td class=\"deployStatus\">" + deployment_data[deployment]['ready_replicas']+ "/" + deployment_data[deployment]['replicas'] + "/" + deployment_data[deployment]['updated_replicas'] + "/" + deployment_data[deployment]['available_replicas'] + "</td>";
+                            var td_deployimage = "<td class=\"deployImage\">" + deployment_data[deployment]['image'] + "</td>";
+                            var td_deployopt = "<td class=\"deployopt\">" +
+                                "<div class=\"ui dropdown\">" +
+                                "<div class=\"ui right pointing dropdown link item\">" +
+                                "<i class=\"dropdown icon\"></i>" + "Actions" +
+                                "<div class=\"menu\">" +
+                                "<div class=\"item\"><i class=\"ion-loop\"></i><a>UpdateVersion</a></div>" +
+                                "<div class=\"item\"><i class=\"ion-plus-round\"></i><a>ScaleUp</a></div>" +
+                                "<div class=\"item\"><i class=\"ion-minus-round\"></i><a>ScaleDown</a></div>" +
+                                "<div class=\"divider\"></div>" +
+                                "<div class=\"item\"><i class=\"ion-trash-a\"></i><a>Delete</a></div>" +
+                                "</div>" +
+                                "</div>" +
+                                "</div>" +
+                                "</td>";
+                            $(".deploy-table tbody").append(row_content);
+                            $("#did_" + deployment_data[deployment]['id']).append(td_deployname);
+                            $("#did_" + deployment_data[deployment]['id']).append(td_deploynamespace);
+                            $("#did_" + deployment_data[deployment]['id']).append(td_deploystatus);
+                            $("#did_" + deployment_data[deployment]['id']).append(td_deployimage);
+                            $("#did_" + deployment_data[deployment]['id']).append(td_deployopt, action_dropdown());
+                        }
+                        // $('.deploy-table').load('/data_table', {'namespace': $('.namespace-sel option:selected').text()}, function () {
+                        //    action_dropdown();
+                        // });
+                    }
+                });
+            });
+        });
     </script>
 {% endblock %}
